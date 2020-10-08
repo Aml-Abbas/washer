@@ -30,14 +30,15 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             WashingMessage ackWaterFill = receive();
             System.out.println("washing program 1 got " + ackWaterFill);
 
-            temp.send(new WashingMessage(this, WashingMessage.TEMP_SET, 40));
-            WashingMessage ack1 = receive();
-            System.out.println("washing program 1 got " + ack1.getSender().getClass().getSimpleName());
-
             // Instruct SpinController to rotate barrel slowly, back and forth
             // Expect an acknowledgment in response.
             System.out.println("setting SPIN_SLOW...");
             spin.send(new WashingMessage(this, WashingMessage.SPIN_SLOW));
+
+            temp.send(new WashingMessage(this, WashingMessage.TEMP_SET, 40));
+            WashingMessage ack1 = receive();
+            System.out.println("washing program 1 got " + ack1.getSender().getClass().getSimpleName());
+
 
 
             // keep for 30 simulated minutes (one minute == 60000 milliseconds)
@@ -64,7 +65,6 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             }
 
 
-
             System.out.println("setting SPIN_Fast...");
             spin.send(new WashingMessage(this, WashingMessage.SPIN_FAST));
 
@@ -72,18 +72,8 @@ public class WashingProgram1 extends ActorThread<WashingMessage> {
             Thread.sleep(5 * 60000 / Settings.SPEEDUP);
 
             spin.send(new WashingMessage(this, WashingMessage.SPIN_OFF));
-            spin.send(new WashingMessage(this, WashingMessage.SPIN_OFF));
             WashingMessage ack = receive();
             System.out.println("washing program 1 got " + ack);
-
-            // Now that the barrel has stopped, it is safe to open the hatch.
-            // Drain barrel, which may take some time. To ensure the barrel
-            // is drained before we continue, an acknowledgment is required.
-            water.send(new WashingMessage(this, WashingMessage.WATER_DRAIN));
-
-            WashingMessage ack2 = receive();  // wait for acknowledgment
-            System.out.println("got " + ack2);
-
 
             // Now that the barrel is drained, we can turn off water regulation.
             // For the WATER_IDLE order, the water level regulator will not send

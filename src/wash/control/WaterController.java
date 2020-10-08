@@ -25,6 +25,8 @@ public class WaterController extends ActorThread<WashingMessage> {
                    lastM=m;
                    sender=lastM.getSender();
                }
+
+               //hoppa över och kör från början
                if (lastM==null){
                    continue;
 

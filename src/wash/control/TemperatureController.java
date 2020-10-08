@@ -20,11 +20,11 @@ public class TemperatureController extends ActorThread<WashingMessage> {
         try {
             while (true) {
                 // wait for up to a (simulated) 10 sekund for a WashingMessage
-                 WashingMessage m = receiveWithTimeout((long) (1000*dt / Settings.SPEEDUP));
+                 WashingMessage m = receiveWithTimeout((1000*dt) / Settings.SPEEDUP);
                 // if m is null, it means a minute passed and no message was received
                 if (m != null) {
                     System.out.println("got " + m);
-                    lastM=m;
+                    lastM= m;
                     sender= lastM.getSender();
                     int command = lastM.getCommand();
 
@@ -39,12 +39,8 @@ public class TemperatureController extends ActorThread<WashingMessage> {
                 }
 
                 if (temp!=null && io.getTemperature()<= temp-2+0.008*dt){
-                    if (io.getWaterLevel()!=0){
                         io.heat(true);
-                    }
-                    else {
-                        io.heat(false);
-                    }
+
                 }else if(temp==null || io.getTemperature()>= temp-0.05*dt){
                     io.heat(false);
                     if (lastM!=null){

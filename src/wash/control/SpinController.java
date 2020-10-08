@@ -39,9 +39,7 @@ public class SpinController extends ActorThread<WashingMessage> {
                             }
                             break;
                         case WashingMessage.SPIN_FAST:
-                            if (io.getWaterLevel()==0){
-                                io.setSpinMode(WashingIO.SPIN_FAST);
-                            }
+                                   io.setSpinMode(WashingIO.SPIN_FAST);
                             break;
                         case WashingMessage.SPIN_SLOW:
                             if (!direction){
@@ -56,8 +54,6 @@ public class SpinController extends ActorThread<WashingMessage> {
                 }
 
         } catch (InterruptedException unexpected) {
-            // we don't expect this thread to be interrupted,
-            // so throw an error if it happens anyway
             throw new Error(unexpected);
         }
     }

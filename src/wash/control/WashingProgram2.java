@@ -36,12 +36,12 @@ public class WashingProgram2 extends ActorThread<WashingMessage> {
             // Expect an acknowledgment in response.
             System.out.println("setting SPIN_SLOW...");
 
+            spin.send(new WashingMessage(this, WashingMessage.SPIN_SLOW));
 
             temp.send(new WashingMessage(this, WashingMessage.TEMP_SET, 40));
             WashingMessage ack1 = receive();
             System.out.println("washing program 2 got " + ack1);
 
-            spin.send(new WashingMessage(this, WashingMessage.SPIN_SLOW));
 
             // keep for 20 simulated minutes (one minute == 60000 milliseconds)
             Thread.sleep(20 * 60000 / Settings.SPEEDUP);
@@ -99,13 +99,6 @@ public class WashingProgram2 extends ActorThread<WashingMessage> {
             spin.send(new WashingMessage(this, WashingMessage.SPIN_OFF));
             WashingMessage ack = receive();
             System.out.println("washing program 2 got " + ack);
-            // Now that the barrel has stopped, it is safe to open the hatch.
-            // Drain barrel, which may take some time. To ensure the barrel
-            // is drained before we continue, an acknowledgment is required.
-            water.send(new WashingMessage(this, WashingMessage.WATER_DRAIN));
-            WashingMessage ack2 = receive();  // wait for acknowledgment
-            System.out.println("got " + ack2);
-
 
             // Now that the barrel is drained, we can turn off water regulation.
             // For the WATER_IDLE order, the water level regulator will not send
