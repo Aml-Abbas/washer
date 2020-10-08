@@ -35,19 +35,22 @@ public class WashingProgram2 extends ActorThread<WashingMessage> {
             // Instruct SpinController to rotate barrel slowly, back and forth
             // Expect an acknowledgment in response.
             System.out.println("setting SPIN_SLOW...");
-            spin.send(new WashingMessage(this, WashingMessage.SPIN_SLOW));
-            WashingMessage ackSpinSlow = receive();
-            System.out.println("washing program 2 got " + ackSpinSlow);
+
 
             temp.send(new WashingMessage(this, WashingMessage.TEMP_SET, 40));
-            // keep for 30 simulated minutes (one minute == 60000 milliseconds)
+            WashingMessage ack1 = receive();
+            System.out.println("washing program 2 got " + ack1);
+
+            spin.send(new WashingMessage(this, WashingMessage.SPIN_SLOW));
+
+            // keep for 20 simulated minutes (one minute == 60000 milliseconds)
             Thread.sleep(20 * 60000 / Settings.SPEEDUP);
 
             temp.send(new WashingMessage(this, WashingMessage.TEMP_IDLE));
             WashingMessage ackTempIdle = receive();
             System.out.println("washing program 2 got " + ackTempIdle);
 
-            water.send(new WashingMessage(this, WashingMessage.WATER_DRAIN));
+            water.send(new WashingMessage(this, WashingMessage.WATER_DRAIN, 10));
             WashingMessage ackWaterDrain = receive();
             System.out.println("washing program 2 got " + ackWaterDrain);
 
@@ -57,8 +60,8 @@ public class WashingProgram2 extends ActorThread<WashingMessage> {
 
 
             temp.send(new WashingMessage(this, WashingMessage.TEMP_SET, 60));
-
-            spin.send(new WashingMessage(this, WashingMessage.SPIN_SLOW));
+            WashingMessage ack11 = receive();
+            System.out.println("washing program 2 got " + ack1.getSender().getClass().getSimpleName());
 
             // keep for 30 simulated minutes (one minute == 60000 milliseconds)
             Thread.sleep(30 * 60000 / Settings.SPEEDUP);
@@ -67,37 +70,26 @@ public class WashingProgram2 extends ActorThread<WashingMessage> {
             WashingMessage ackTempIdle2 = receive();
             System.out.println("washing program 2 got " + ackTempIdle2);
 
-            water.send(new WashingMessage(this, WashingMessage.WATER_DRAIN));
-            WashingMessage ackWaterDrain2 = receive();
-            System.out.println("washing program 2 got " + ackWaterDrain2);
-
+            water.send(new WashingMessage(this, WashingMessage.WATER_DRAIN, 10));
+            WashingMessage ackWaterDrain1 = receive();
+            System.out.println("washing program 2 got " + ackWaterDrain1);
 
             for (int i=0;i<5;i++){
                 water.send(new WashingMessage(this, WashingMessage.WATER_FILL, 10));
                 WashingMessage ackWaterRinse = receive();
-                System.out.println("washing program 1 got " + ackWaterRinse);
-                spin.send(new WashingMessage(this, WashingMessage.SPIN_SLOW));
-                WashingMessage ack = receive();
-                System.out.println("washing program 1 got " + ack);
-
+                System.out.println("washing program 2 got " + ackWaterRinse);
                 Thread.sleep(2 * 60000 / Settings.SPEEDUP);
 
-                spin.send(new WashingMessage(this, WashingMessage.SPIN_OFF));
-                WashingMessage ackSpinOff = receive();
-                System.out.println("washing program 1 got " + ackSpinOff);
+                water.send(new WashingMessage(this, WashingMessage.WATER_DRAIN, 10));
+                WashingMessage ackWaterDrain11 = receive();
+                System.out.println("washing program 2 got " + ackWaterDrain11);
 
-                water.send(new WashingMessage(this, WashingMessage.WATER_DRAIN));
-                WashingMessage ackWaterDrainRinse = receive();
-                System.out.println("washing program 1 got " + ackWaterDrainRinse);
             }
 
 
 
             System.out.println("setting SPIN_Fast...");
             spin.send(new WashingMessage(this, WashingMessage.SPIN_FAST));
-            WashingMessage ackSpinFast = receive();
-            System.out.println("washing program 1 got " + ackSpinFast);
-
             // Spin for five simulated minutes (one minute == 60000 milliseconds)
             Thread.sleep(5 * 60000 / Settings.SPEEDUP);
 
@@ -106,7 +98,7 @@ public class WashingProgram2 extends ActorThread<WashingMessage> {
             System.out.println("setting SPIN_OFF...");
             spin.send(new WashingMessage(this, WashingMessage.SPIN_OFF));
             WashingMessage ack = receive();
-            System.out.println("washing program 1 got " + ack);
+            System.out.println("washing program 2 got " + ack);
             // Now that the barrel has stopped, it is safe to open the hatch.
             // Drain barrel, which may take some time. To ensure the barrel
             // is drained before we continue, an acknowledgment is required.

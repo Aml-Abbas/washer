@@ -5,17 +5,17 @@ import wash.io.WashingIO;
 
 public class SpinController extends ActorThread<WashingMessage> {
     private WashingIO io;
-    private int rotate;
+    private boolean direction;
+    private int command;
+    private ActorThread<WashingMessage> sender;
 
     public SpinController(WashingIO io) {
         this.io= io;
-        rotate= WashingIO.SPIN_RIGHT;
     }
 
     @Override
     public void run() {
         try {
-
 
             while (true) {
                 // wait for up to a (simulated) minute for a WashingMessage
@@ -24,34 +24,37 @@ public class SpinController extends ActorThread<WashingMessage> {
                 // if m is null, it means a minute passed and no message was received
                 if (m != null) {
                     System.out.println("got " + m);
+                    sender = m.getSender();
+                    command= m.getCommand();
+                }
 
-                    int command= m.getCommand();
+
                     switch (command){
                         case WashingMessage.SPIN_OFF:
-                            io.setSpinMode(command);
+                            io.setSpinMode(WashingIO.SPIN_IDLE);
+                            command=-1;
+                            if (sender!=null) {
+                                sender.send(new WashingMessage(this, WashingMessage.ACKNOWLEDGMENT));
+                                m = null;
+                            }
                             break;
                         case WashingMessage.SPIN_FAST:
-                            io.setSpinMode(command);
+                            if (io.getWaterLevel()==0){
+                                io.setSpinMode(WashingIO.SPIN_FAST);
+                            }
                             break;
                         case WashingMessage.SPIN_SLOW:
-                            if (rotate== WashingIO.SPIN_RIGHT){
+                            if (!direction){
                                 io.setSpinMode(WashingIO.SPIN_LEFT);
-                                rotate= WashingIO.SPIN_LEFT;
                             }else {
                                 io.setSpinMode(WashingIO.SPIN_RIGHT);
-                                rotate= WashingIO.SPIN_RIGHT;
                             }
+                            direction= !direction;
                             break;
 
                     }
-                    ActorThread<WashingMessage> sender= m.getSender();
-                    sender.send(new WashingMessage(this,WashingMessage.ACKNOWLEDGMENT));
-
-                    sleep(1000000);
-
                 }
 
-            }
         } catch (InterruptedException unexpected) {
             // we don't expect this thread to be interrupted,
             // so throw an error if it happens anyway
